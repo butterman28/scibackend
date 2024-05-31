@@ -1,10 +1,12 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
-
+from drf_extra_fields.fields import Base64ImageField
+#from drf_extra_fields.fields import Base64ImageField
 from .models import *
 
 class ProfileSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(required=False)
     class Meta:
         model = Profile
         fields = ["age" , "image"]
