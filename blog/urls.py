@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     #path('', include(router.urls)),
     path("post/", views.postview.as_view(),name="posts"),
+    path("likes/", views.likes.as_view(),name="likes"),
     path("post/<int:post_id>/", views.postupdatedelete.as_view(),name="post_update"),
     path("like/<int:post_id>/", views.LikeView.as_view(),name="like"),
     path("comment/<int:post_id>/", views.commentview.as_view(),name="comment"),

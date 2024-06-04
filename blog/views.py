@@ -23,6 +23,8 @@ class postview(APIView):
     )
     def get(self,request:Request,*args,**kwargs):
         posts = Post.objects.all()
+        for i in posts:
+            i.image
         serializer = PostSerializer(instance=posts,many=True)
         return Response(data = serializer.data,status = status.HTTP_200_OK)
     @swagger_auto_schema(
@@ -51,6 +53,8 @@ class postupdatedelete(APIView):
     )
     def get(self,request:Request,post_id:int):
         post = get_object_or_404(Post,id=post_id)
+        
+        like = get_object_or_404(Like,post=post)
         serializer = self.serializer_class(instance=post)
         return Response(data=serializer.data,status=status.HTTP_200_OK)
     @swagger_auto_schema(
@@ -179,6 +183,11 @@ class commentupdate(APIView):
         comment = get_object_or_404(Comment,id=comment_id)
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-        
+class likes(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    def get(self,request:Request,*args,**kwargs):
+        likes = Like.objects.all()
+        serializer = LikSerializer(instance=likes,many=True)
+        return Response(data = serializer.data,status = status.HTTP_200_OK)
         
         
