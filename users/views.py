@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import *
 from .tokens import create_jwt_pair_for_user
-
+from rest_framework.permissions import *
 # Create your views here.
 
 
@@ -43,7 +43,7 @@ class LoginView(APIView):
 
             tokens = create_jwt_pair_for_user(user)
 
-            response = {"message": "Login Successfull", "tokens": tokens}
+            response = {"message": "Login Successfull", "tokens": tokens, "username": user.username, "email":user.email}
             return Response(data=response, status=status.HTTP_200_OK)
 
         else:
@@ -54,5 +54,11 @@ class LoginView(APIView):
 
         return Response(data=content, status=status.HTTP_200_OK)
 
-
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self,request:Request,name:str):
+        profile = Profile.objects.get(username=name)
+        serializer = PostSerializer(instance=profile,many=True)
+        return Response(data = serializer.data,status = status.HTTP_200_OK)
 # Create your views here.

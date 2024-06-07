@@ -4,12 +4,17 @@ from rest_framework.validators import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 #from drf_extra_fields.fields import Base64ImageField
 from .models import *
-
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
+    
 class ProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     image = Base64ImageField(required=False)
     class Meta:
         model = Profile
-        fields = ["age" , "image"]
+        fields = ["age" , "image", "user"]
         
     def create(self, validated_data):
         # Override the create method to handle user creation

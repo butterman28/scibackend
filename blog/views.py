@@ -23,8 +23,6 @@ class postview(APIView):
     )
     def get(self,request:Request,*args,**kwargs):
         posts = Post.objects.all()
-        for i in posts:
-            i.image
         serializer = PostSerializer(instance=posts,many=True)
         return Response(data = serializer.data,status = status.HTTP_200_OK)
     @swagger_auto_schema(
