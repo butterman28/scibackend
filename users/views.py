@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from .serializers import *
 from .tokens import create_jwt_pair_for_user
 from rest_framework.permissions import *
+import base64
 # Create your views here.
 
 
@@ -42,8 +43,9 @@ class LoginView(APIView):
         if user is not None:
 
             tokens = create_jwt_pair_for_user(user)
-
-            response = {"message": "Login Successfull", "tokens": tokens, "username": user.username, "email":user.email}
+            with open(user.profile.image.path, 'rb') as img_file:
+                image = base64.b64encode(img_file.read()).decode('utf-8')
+            response = {"message": "Login Successfull", "tokens": tokens, "username": user.username, "email":user.email,"profilephoto":image}
             return Response(data=response, status=status.HTTP_200_OK)
 
         else:
