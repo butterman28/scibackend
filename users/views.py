@@ -9,6 +9,7 @@ from .serializers import *
 from .tokens import create_jwt_pair_for_user
 from rest_framework.permissions import *
 import base64
+
 # Create your views here.
 
 
@@ -45,7 +46,15 @@ class LoginView(APIView):
             tokens = create_jwt_pair_for_user(user)
             with open(user.profile.image.path, 'rb') as img_file:
                 image = base64.b64encode(img_file.read()).decode('utf-8')
-            response = {"message": "Login Successfull", "tokens": tokens, "username": user.username, "email":user.email,"profilephoto":image}
+            response = {
+                "message": "Login Successfull", 
+                "tokens": tokens,
+                "username": user.username, 
+                "email":user.email,
+                "profilephoto":image,
+                "age":user.profile.age,
+                "date_of_birth":user.date_of_birth,
+                }
             return Response(data=response, status=status.HTTP_200_OK)
 
         else:
@@ -61,6 +70,6 @@ class ProfileView(APIView):
     
     def get(self,request:Request,name:str):
         profile = Profile.objects.get(username=name)
-        serializer = PostSerializer(instance=profile,many=True)
+        serializer = ProfileSerializer(instance=profile,many=True)
         return Response(data = serializer.data,status = status.HTTP_200_OK)
 # Create your views here.
