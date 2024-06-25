@@ -101,24 +101,29 @@ class LikeView(APIView):
     
     def post(self,request:Request,post_id:int):
         post = get_object_or_404(Post,id=post_id)
-        like = Like.objects.all()
+        #posts = Post.objects.all()
+        #like = Like.objects.all()
         user = self.request.user
         data = request.data
-        serializer = likeSerializer(data=request.data)
+        #serializer = likeSerializer(data=request.data)
         if Like.objects.filter(post=post, user=user).exists() == False:
             #serializer.save(user=user,post=post)
-            Like.objects.create(user=user,post=post)
+            like = Like.objects.create(user=user,post=post)
+            likes = Like.objects.get(post__id=post_id)
+            serializerlike = LikSerializer(instance=like)
+            print(serializerlike.data)
             response = {
                 "message":"liked",
-                #"data":serializer.data
+                "data":serializerlike.data
                 }
             return Response(data=response,status=status.HTTP_200_OK)
         else:
             Like.objects.get(post=post,user=user).delete()
             response = {
                 "message":"unliked",
-                #"data":serializer.data
+                #"data":serializerlike.data
                 }
+            print(response)
             return Response(data=response,status=status.HTTP_200_OK)
 
 # Create your views here.

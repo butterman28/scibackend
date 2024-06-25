@@ -9,6 +9,8 @@ from .serializers import *
 from .tokens import create_jwt_pair_for_user
 from rest_framework.permissions import *
 import base64
+from django.core.files.base import ContentFile
+from datetime import datetime
 
 # Create your views here.
 
@@ -67,9 +69,43 @@ class LoginView(APIView):
 
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    #serializer_class = ProfileSerializer
     
-    def get(self,request:Request,name:str):
-        profile = Profile.objects.get(username=name)
-        serializer = ProfileSerializer(instance=profile,many=True)
-        return Response(data = serializer.data,status = status.HTTP_200_OK)
+    def decode_base64(base64_string):
+    # Split the base64 string to get the content type and the data
+        format, imgstr = base64_string.split(';base64,')
+    # Decode base64 string
+        data = ContentFile(base64.b64decode(imgstr), name='temp')  # Assuming PNG format here
+        return data
+    
+    def post(self,request:Request,name:str):
+        profile = Profile.objects.get(user__username=name)
+        user = User.objects.get(username = name)
+        print(profile)
+        email = request.data.get("email")
+        user.email = email
+        name = request.data.get("name")
+        user.username = name 
+        age = request.data.get("age")
+        profile.age = age    
+        dob = request.data.get("dob")
+        date_object = datetime.strptime(dob, '%Y-%m-%d').date()
+        user.date_of_birth = date_object
+        print(user.date_of_birth)
+        image = request.data.get("image")
+        #print(image)
+        if image:
+            # Decode base64 string into image data
+            #format, img = image.split(';base64,')
+            image_data = ContentFile(base64.b64decode(image), name='profile.png') 
+            #   Save image data to the database
+            #   image = ImageModel()
+            #   image.image_field.save('image.png', image_data, save=True)  # Adjust 'image_field' to your actual image field name
+            profile.image = image_data
+        profile.save()
+        user.save()
+        response = {
+                "message": "Successfull",
+                }    
+        return Response( data = response, status = status.HTTP_200_OK)
 # Create your views here.
