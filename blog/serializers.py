@@ -4,10 +4,33 @@ from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 import base64
 from django.core.files import File
+from users.models import *
 
 User = get_user_model()
+class Base64ImageField(serializers.ImageField):
+    """
+    A custom serializer field to convert an image file to Base64 format.
+    """
+    def to_representation(self, value):
+        if value:
+            with open(value.path, 'rb') as f:
+                data = f.read()
+                return base64.b64encode(data).decode('utf-8')
+        return None
 
+class ProimageSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(required=False)
+    class Meta:
+        model = Profile
+        fields = ['image']
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    profile = ProimageSerializer(read_only=True)   
+    class Meta:
+        model = User
+        #fields = ["username", "email", "password1", "password2"]
+        fields = ["username","profile"]
+class likeUserSerializer(serializers.HyperlinkedModelSerializer):
+    #profile = ProimageSerializer(read_only=True)   
     class Meta:
         model = User
         #fields = ["username", "email", "password1", "password2"]
@@ -20,18 +43,19 @@ class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     class Meta:
         model = Comment
-        fields =["content","author","created_at"]
+        fields =["id","author","content","created_at"]
         
 class LikSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = likeUserSerializer(read_only=True)
     class Meta:
         model = Like
         fields = ["post", "user", "date_liked"]
         
 class CommentupdateSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
     class Meta:
         model = Comment
-        fields = ["content"]
+        fields = ["id","author","content","created_at"]
 
 
 class PostSerializer(serializers.ModelSerializer):

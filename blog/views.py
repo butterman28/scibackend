@@ -132,9 +132,10 @@ class commentview(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     
     def get(self,request:Request,*args,**kwargs):
-        post =Post.objects.all()
+        comment = Comment.objects.all()
+        #print(comment.content)
         #like = Like.objects.all()
-        serializer = self.serializer_class(instance=post)
+        serializer = self.serializer_class(instance=comment, many=True)
         return Response(data=serializer.data,status=status.HTTP_200_OK)
     def post(self,request:Request,post_id:int):
         post = get_object_or_404(Post,id= post_id)
@@ -153,6 +154,7 @@ class commentview(APIView):
     
 class commentupdate(APIView):
     serializer_class = CommentupdateSerializer
+    permission_classes = [IsAuthenticated]
     @swagger_auto_schema(
         operation_summary="view all post with their comments",
         #operation_description="comment on a particular post in the database by appending its id at the end of the url",
@@ -171,7 +173,7 @@ class commentupdate(APIView):
         user = self.request.user
         serializer = CommentupdateSerializer(instance=comment, data=data)
         if serializer.is_valid() and comment.author == user:
-            serializer.save()
+            serializer.save(author=user)
             response = {
                 "message":"comment updated",
                 "data":serializer.data
@@ -184,8 +186,9 @@ class commentupdate(APIView):
     )        
     def delete(self,request:Request,comment_id:int):
         comment = get_object_or_404(Comment,id=comment_id)
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if comment.author == self.request.user:
+            comment.delete()
+        return Response(status=status.HTTP_200_OK)
 class likes(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
     def get(self,request:Request,*args,**kwargs):
