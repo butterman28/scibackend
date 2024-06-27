@@ -9,6 +9,10 @@ from .models import Post, Comment
 from rest_framework.decorators import *
 from .serializers import *
 from drf_yasg.utils import swagger_auto_schema
+#from rest_framework.permissions import *
+import base64
+from django.core.files.base import ContentFile
+from datetime import datetime
 
 class postview(APIView):
     queryset = Post.objects.all()
@@ -32,15 +36,32 @@ class postview(APIView):
     def post(self,request:Request,*args,**kwargs):
         data = request.data
         user = self.request.user
-        serializer = self.serializer_class(data=data)
-        if serializer.is_valid():
-            serializer.save(author=user)
+        title = data.get('title')
+        content = data.get('content')
+        image =  data.get('image')
+        #print(image)
+        if image:
+            # Decode base64 string into image data
+            #format, img = image.split(';base64,')
+            image_file = ContentFile(base64.b64decode(image), name='postimg.png') 
+        if user.username != "Oluwadara Alegbeleye":
+            post_data = {'title': title, 'content': content, 'image': image_file}
+            serializer = PostSerializer(data=post_data)
+            #print(serializer.initial_data)
+            if serializer.is_valid():
+                serializer.save(author=user)
+                response = {
+                    "message":"post created",
+                    "data":serializer.data
+                }
+                print(serializer.data)
+                return Response(data=response,status=status.HTTP_201_CREATED)
+            return Response(data=serializer.errors,status=status.HTTP_400_BAD_REQUEST)    
+        else:
             response = {
-                "message":"post created",
-                "data":serializer.data
-            }
-            return Response(data=response,status=status.HTTP_201_CREATED)
-        return Response(data=serializer.errors,status=status.HTTP_400_BAD_REQUEST)    
+                    "message":"Unauthorized",                    
+                }
+            return Response(data=response,status=status.HTTP_400_BAD_REQUEST)
 
 class postupdatedelete(APIView):
     serializer_class = PostSerializer

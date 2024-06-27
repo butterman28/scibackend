@@ -74,7 +74,15 @@ class PostSerializer(serializers.ModelSerializer):
             with open(instance.image.path, 'rb') as img_file:
                 data['image'] = base64.b64encode(img_file.read()).decode('utf-8')
         return data
-        
+class PostcreationSerializer(serializers.ModelSerializer):
+    #comments = CommentSerializer(many=True, read_only=True)
+    image = Base64ImageField(required=True)
+    #like = LikSerializer(many=True, read_only=True, source='get_likes')
+
+    class Meta:
+        model = Post
+        #fields = '__all__'
+        fields =["image","title","content"]       
 class likeSerializer(serializers.Serializer):
     #post = PostSerializer(many=True, read_only=True)
     #user = UserSerializer(many=True, read_only=True)
