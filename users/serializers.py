@@ -4,6 +4,8 @@ from rest_framework.validators import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 #from drf_extra_fields.fields import Base64ImageField
 from .models import *
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
