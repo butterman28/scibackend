@@ -1,0 +1,29 @@
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff:
+db.sqlite3
+*.log
+*.pot
+*.pyc
+
+# If you're using PostgreSQL:
+*.pgsql
+*.psql
+*.db
+
+# Virtual environment:
+env/
+venv/
+ENV/
+ENV.bak/
+*.venv
+
+
+
+# Static files:
+static/
+media/
