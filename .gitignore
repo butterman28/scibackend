@@ -26,4 +26,4 @@ ENV.bak/
 
 # Static files:
 static/
-/media/
+media/
